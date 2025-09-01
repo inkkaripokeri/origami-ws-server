@@ -8,14 +8,14 @@ wss.on('connection', ws => {
 
   ws.on('message', message => {
     // Muutetaan Buffer → string
-    const msgText = message.toString();
+    const msgText = message.toString(); 
     console.log('Vastaanotettu:', msgText);
 
-    // Lähetetään Origamille
+    // Lähetetään takaisin JSON-muodossa
     ws.send(JSON.stringify({ reply: `Sait viestin: ${msgText}` }));
   });
 
-  // Lähetetään heti tervehdys JSON-muodossa
+  // Lähetetään tervehdys heti yhteyden avauduttua
   ws.send(JSON.stringify({ msg: 'Tervetuloa WebSocket-serveriin!' }));
 });
 
