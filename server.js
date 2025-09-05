@@ -1,25 +1,28 @@
 const WebSocket = require('ws');
 
-const port = process.env.PORT || 8080;
-const wss = new WebSocket.Server({ port });
+const server = new WebSocket.Server({ port: 8080 });
 
-wss.on('connection', ws => {
+server.on('connection', (ws) => {
   console.log('Yhteys avattu');
 
-  ws.on('message', message => {
-    // Muutetaan Buffer → string
-    const msgText = message.toString(); 
-    console.log('Vastaanotettu:', msgText);
+  ws.on('message', (msg) => {
+    console.log('Sain viestin:', msg);
 
-    // Lähetetään takaisin JSON-muodossa
-    // ws.send(JSON.stringify({ reply: `Sait viestin: ${msgText}` }));
-    // Lähetetään takaisin samassa muodossa
-    ws.send(msg);
-    
+    try {
+      // Parsitaan saatu JSON stringiksi
+      const data = JSON.parse(msg);
+
+      // Lähetetään takaisin reply-avaimella ilman ylimääräisiä escapeja
+      ws.send(JSON.stringify({ reply: data }));
+    } catch (e) {
+      // Jos viesti ei ole validia JSONia, lähetetään virheilmoitus
+      ws.send(JSON.stringify({ error: "Viesti ei ollut JSON-muotoinen" }));
+    }
   });
 
-  // Lähetetään tervehdys heti yhteyden avauduttua
-  ws.send(JSON.stringify({ msg: 'Tervetuloa WebSocket-serveriin!' }));
+  ws.on('close', () => {
+    console.log('Yhteys suljettu');
+  });
 });
 
-console.log(`WebSocket-serveri käynnissä portissa ${port}`);
+console.log('Websocket-palvelin käynnistetty porttiin 8080');
