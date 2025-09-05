@@ -12,7 +12,10 @@ wss.on('connection', ws => {
     console.log('Vastaanotettu:', msgText);
 
     // Lähetetään takaisin JSON-muodossa
-    ws.send(JSON.stringify({ reply: `Sait viestin: ${msgText}` }));
+    // ws.send(JSON.stringify({ reply: `Sait viestin: ${msgText}` }));
+    // Lähetetään takaisin samassa muodossa
+    ws.send(msg);
+    
   });
 
   // Lähetetään tervehdys heti yhteyden avauduttua
