@@ -9,13 +9,13 @@ server.on('connection', (ws) => {
     console.log('Sain viestin:', msg);
 
     try {
-      // Parsitaan saatu JSON stringiksi
+      // Parsitaan saatu viesti varmistaaksemme, että se on JSON
       const data = JSON.parse(msg);
 
-      // Lähetetään takaisin reply-avaimella ilman ylimääräisiä escapeja
-      ws.send(JSON.stringify({ reply: data }));
+      // Lähetetään takaisin täsmälleen sama JSON-objekti stringinä
+      ws.send(JSON.stringify(data));
     } catch (e) {
-      // Jos viesti ei ole validia JSONia, lähetetään virheilmoitus
+      // Jos viesti ei ollut validi JSON
       ws.send(JSON.stringify({ error: "Viesti ei ollut JSON-muotoinen" }));
     }
   });
