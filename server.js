@@ -1,6 +1,8 @@
 const WebSocket = require('ws');
 
-const server = new WebSocket.Server({ port: 8080 });
+// Renderissa ei käytetä kiinteää porttia vaan prosessin porttia
+const port = process.env.PORT || 8080;
+const server = new WebSocket.Server({ port });
 
 server.on('connection', (ws) => {
   console.log('Yhteys avattu');
@@ -8,16 +10,20 @@ server.on('connection', (ws) => {
   ws.on('message', (msg) => {
     console.log('Sain viestin:', msg);
 
+    let data;
     try {
-      // Parsitaan saatu viesti varmistaaksemme, että se on JSON
-      const data = JSON.parse(msg);
-
-      // Lähetetään takaisin täsmälleen sama JSON-objekti stringinä
-      ws.send(JSON.stringify(data));
+      data = JSON.parse(msg); // varmista, että on validi JSON
     } catch (e) {
-      // Jos viesti ei ollut validi JSON
       ws.send(JSON.stringify({ error: "Viesti ei ollut JSON-muotoinen" }));
+      return;
     }
+
+    // Lähetetään viesti kaikille yhteydessä oleville (myös lähettäjälle)
+    server.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(data));
+      }
+    });
   });
 
   ws.on('close', () => {
@@ -25,4 +31,4 @@ server.on('connection', (ws) => {
   });
 });
 
-console.log('Websocket-palvelin käynnistetty porttiin 8080');
+console.log(`WebSocket-palvelin käynnistetty porttiin ${port}`);
